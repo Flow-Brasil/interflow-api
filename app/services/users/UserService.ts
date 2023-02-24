@@ -51,6 +51,8 @@ class UserService {
         nftCollections: [],
       });
 
+      await WalletService.setWalletAccountToUser(user);
+
       return {
         message: "User created with success!",
         user,
