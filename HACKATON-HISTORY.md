@@ -6,7 +6,7 @@
 
 The idea was to keep all the files in the same repository to make it easier for judges to score, but we had a lot of issues with asynchronous pushes.
 
-On 24/02 we decided to separate the repositories after a push on the directory to remove the directory (desperation face)
+On 24/02 we decided to separate the repositories after a push on the root directory from a ReactNative update to remove the Interflow API directory (desperation face)
 
 You can see the push in the commit history here:
 
