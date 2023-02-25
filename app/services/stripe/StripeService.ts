@@ -55,9 +55,9 @@ class StripeService {
 
     try{
         await user.update({
-            interflowTokens: user.interflowTokens + amount
+            interflowTokens: user.dataValues.interflowTokens + amount
         })
-        
+
         return user;
     } catch (err: any) {
         console.log("ERROR ---", err);
