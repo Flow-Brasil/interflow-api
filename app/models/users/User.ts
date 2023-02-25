@@ -18,6 +18,9 @@ export class User extends Model {
   @Column(DataType.STRING)
   email!: string;
 
+  @Column(DataType.INTEGER)
+  interflowTokens!: number;
+
   @Column(DataType.STRING)
   interflowAddress!: string;
 

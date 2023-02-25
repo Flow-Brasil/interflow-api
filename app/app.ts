@@ -10,6 +10,7 @@ import userRoutes from "./routes/users/user.routes";
 import walletRoutes from "@routes/wallets/wallet.routes";
 import "./config"
 import postRoutes from "@routes/posts/posts.routes";
+import stripeRoutes from "@routes/stripe/stripe.routes";
 
 class App {
   public app: express.Application;
@@ -41,6 +42,7 @@ class App {
     this.app.use(userRoutes);
     this.app.use(walletRoutes);
     this.app.use(postRoutes)
+    this.app.use(stripeRoutes)
 
     this.app.get("/healthz", (req, res) => {
       res.json({ interflowAuth: true });

@@ -49,7 +49,7 @@ class WalletService {
       if (availableWalletsLength <= 10) {
         if ((await this.getHealth()) != undefined) {
           let x = 0;
-          while (x < 10) {
+          while (x < 5) {
             console.log("Creating wallet account" + x);
             await this.createWalletAccount();
             x++;

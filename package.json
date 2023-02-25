@@ -61,6 +61,7 @@
     "pg-hstore": "^2.3.4",
     "sequelize": "^6.25.6",
     "sequelize-typescript": "^2.1.5",
+    "stripe": "^11.12.0",
     "strong-error-handler": "^4.0.1",
     "swagger-ui-express": "^4.6.0"
   }

@@ -40,6 +40,7 @@ class UserService {
         nickname: nickname,
         email: email,
         interflowAddress: "",
+        interflowTokens: 0,
         bloctoAddress: null,
         dapperAddress: null,
         nftLength: 0,
