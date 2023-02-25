@@ -275,28 +275,39 @@ class UserService {
 
   async getExploreData(id: string): Promise<UserSocialData[]> {
     const exploreUsers = await userRepository.findAll({
-      attributes: ["id"],
-      where: {
-        id: {
-          [Op.not]: id,
-        },
-      },
+      attributes: ["id", "nickname", "interflowAddress", "pfpImage", "bgImage", "nftLength", "nftCollections"],
+      order: [["nftLength", "DESC"]],
     });
 
-    let user = await userRepository.findByPk(id);
+    let user = exploreUsers.find((user) => user.dataValues.id === id);
+    let compareCollection = user.dataValues.nftCollections;
 
-    let exploreIds = exploreUsers.map((user) => user.dataValues.id);
+    
     let exploreUsersData: UserSocialData[] = [];
-
+    
+    
+    
     try {
-      for (let exploreUser of exploreIds) {
-        let userfollowingData = await this.getUserSocialData(
-          exploreUser,
-          user.dataValues.nftCollections
+      for (let user of exploreUsers) {
+        if(user.dataValues.id === id) continue;
+        let collectionInCommon = user.nftCollections.filter((collection) =>
+        compareCollection.includes(collection)
         );
-        exploreUsersData.push(userfollowingData);
+
+        let userSocialData: UserSocialData = {
+          id: user.dataValues.id,
+          nickname: user.dataValues.nickname,
+          address: user.dataValues.interflowAddress,
+          pfpImage: user.dataValues.pfpImage,
+          bgImage: user.dataValues.bgImage,
+          nftLength: user.dataValues.nftLength,
+          collectionInCommon: collectionInCommon,
+          nftCollections: user.dataValues.nftCollections,
+        };
+        
+        exploreUsersData.push(userSocialData);
       }
-      return UserUtils.sortSocialUsers(exploreUsersData);
+      return UserUtils.sortUsersWithData(exploreUsersData, compareCollection);
     } catch (error) {
       console.log("error", error);
       return null;

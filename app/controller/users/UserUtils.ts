@@ -18,15 +18,15 @@ class UserUtils {
   }
 
   public async sortUsersWithData(
-    users: UserCompleteData[],
+    users: UserSocialData[],
     callerCollectionName: string[]
-  ): Promise<UserCompleteData[]> {
+  ): Promise<UserSocialData[]> {
     const sortedUsers = users.sort((a, b) => {
-      if (a.user.nftCollections.some(r => callerCollectionName.includes(r))) {
-        return 2;
-      } else if (a.user.followers.length > b.user.followers.length) {
+      if (a.nftCollections.some(r => callerCollectionName.includes(r))) {
+        return -2;
+      } else if (a.nftLength > b.nftLength) {
         return -1;
-      } else if (a.user.followers.length < b.user.followers.length) {
+      } else if (a.nftLength < b.nftLength) {
         return 1;
       } else {
         return 0;
@@ -38,14 +38,10 @@ class UserUtils {
 
   public async sortSocialUsers( users: UserSocialData[] ): Promise<UserSocialData[]> {
     const sortedUsers = users.sort((a, b) => {
-      if (a.collectionInCommon.length > b.collectionInCommon.length) {
-        return 2;
-      } else if (a.nftLength > b.nftLength) {
-        return 1;
-      } else if (a.collectionInCommon.length < b.collectionInCommon.length) {
+      if (a.nftLength > b.nftLength) {
         return -1;
       } else if(a.nftLength < b.nftLength) {
-        return -2;
+        return 1;
       } else {
         return 0;
       }
