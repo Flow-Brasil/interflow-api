@@ -63,7 +63,7 @@ class UserController {
     res: Response
   ): Promise<Response> {
     try {
-      let user = await UserService.getUserCollectionData(req.params.id);
+      let user = await UserService.getAllUserCollections(req.params.id);
       return res.status(200).json(user);
     } catch (err: any) {
       console.log('ERROR ---', err)

@@ -6,7 +6,6 @@ import { User } from "@models/users/User";
 import { UserUpdate } from "app/daos/UserUpdate";
 import WalletService from "../wallets/WalletService";
 import FlowService from "../flow/FlowService";
-import { Op } from "sequelize";
 import { UserSocialData } from "app/daos/UserSocialData";
 import { UserRakingData } from "app/daos/UserRankingData";
 
@@ -29,7 +28,7 @@ class UserService {
         };
       }
     } catch (err: any) {
-      console.log('ERROR ---', err)
+      console.log("ERROR ---", err);
       return { message: "There was a problem logging in." };
     }
 
@@ -91,22 +90,9 @@ class UserService {
     !dapperAddress && (dapperAddress = user?.dataValues.dapperAddress);
     !bloctoAddress && (bloctoAddress = user?.dataValues.bloctoAddress);
 
-    const nftCollections = await FlowService.getNftsCollectionByAddresses([
-      bloctoAddress,
-      dapperAddress,
-    ]);
-
-    let newNftLength = 0;
-    let userNftCollectionNames = nftCollections.map((collection) => {
-      const length = collection.tokenIDs.length;
-      newNftLength += length;
-      return collection.display.name;
-    });
-
-    userUpdates.nftCollections = userNftCollectionNames;
-    userUpdates.nftLength = newNftLength;
-
     await user.update(userUpdates);
+
+    await this.getAllUserCollections(id);
 
     return user;
   }
@@ -165,9 +151,11 @@ class UserService {
     return "User removed with success!";
   }
 
+  // ------------------------------------------
+  // NFTS -------------------------------------
+  // ------------------------------------------
   async getUserNfts(id: string): Promise<any> {
     const user = await this.findUserDataValue(id);
-    console.log("user", user);
     if (
       (user.dapperAddress === null || user.dapperAddress === "") &&
       (user.bloctoAddress === null || user.bloctoAddress === "")
@@ -178,31 +166,35 @@ class UserService {
     return nfts;
   }
 
-  //TODO: CHANGE TO GET USER AND GET USER DATA USING user.DataValues
-  async getUserCollectionData(id: string): Promise<UserCompleteData> {
-    const userData = await this.findUserDataValue(id);
-    if (!userData) {
-      return null;
-    }
-
+  // ------------------------------------------
+  // NFTS COLLECTIONS --------------------------
+  // ------------------------------------------
+  async getAllUserCollections(id: string): Promise<any> {
+    const user = await this.getUser(id);
     if (
-      (userData.dapperAddress === null || userData.dapperAddress === "") &&
-      (userData.bloctoAddress === null || userData.bloctoAddress === "")
+      (user.dataValues.dapperAddress === null || user.dataValues.dapperAddress === "") &&
+      (user.dataValues.bloctoAddress === null || user.dataValues.bloctoAddress === "")
     ) {
       let userCompleteData: UserCompleteData = {
-        user: userData,
+        user: user.dataValues,
         collections: [],
       };
       return userCompleteData;
     } else {
-      let nftCollectionData: NftCollectionData[] =
-        await FlowService.getNftCollectionFromAccount(userData);
-      let userCompleteData: UserCompleteData = {
-        user: userData,
-        collections: nftCollectionData,
-      };
+      const collections = await FlowService.getAllUserCollection(user.dataValues);
 
-      console.log("userCompleteData", userCompleteData);
+      let userCollectionsNames = Object.keys(collections)
+      let collectionValues: NftCollectionData[] = Object.values(collections)
+      let totalLength = collectionValues.reduce((acc, collection) => {
+        return acc + (+collection.nftLength)
+      }, 0)
+      
+      await user.update({ nftCollections: userCollectionsNames, nftLength: totalLength })
+
+      let userCompleteData: UserCompleteData = {
+        user: user.dataValues,
+        collections: collections,
+      };
 
       return userCompleteData;
     }
@@ -275,23 +267,28 @@ class UserService {
 
   async getExploreData(id: string): Promise<UserSocialData[]> {
     const exploreUsers = await userRepository.findAll({
-      attributes: ["id", "nickname", "interflowAddress", "pfpImage", "bgImage", "nftLength", "nftCollections"],
+      attributes: [
+        "id",
+        "nickname",
+        "interflowAddress",
+        "pfpImage",
+        "bgImage",
+        "nftLength",
+        "nftCollections",
+      ],
       order: [["nftLength", "DESC"]],
     });
 
     let user = exploreUsers.find((user) => user.dataValues.id === id);
     let compareCollection = user.dataValues.nftCollections;
 
-    
     let exploreUsersData: UserSocialData[] = [];
-    
-    
-    
+
     try {
       for (let user of exploreUsers) {
-        if(user.dataValues.id === id) continue;
-        let collectionInCommon = user.nftCollections.filter((collection) =>
-        compareCollection.includes(collection)
+        if (user.dataValues.id === id) continue;
+        let collectionInCommon = user.dataValues.nftCollections.filter((collection) =>
+          compareCollection.includes(collection)
         );
 
         let userSocialData: UserSocialData = {
@@ -304,7 +301,7 @@ class UserService {
           collectionInCommon: collectionInCommon,
           nftCollections: user.dataValues.nftCollections,
         };
-        
+
         exploreUsersData.push(userSocialData);
       }
       return UserUtils.sortUsersWithData(exploreUsersData, compareCollection);

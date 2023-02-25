@@ -1,7 +1,3 @@
-import { Request, Response, NextFunction } from "express";
-import { User } from "@models/users/User";
-import { sequelize } from "@database/sequelize";
-import { UserCompleteData } from "app/daos/UserCompleteData";
 import { UserSocialData } from "app/daos/UserSocialData";
 
 class UserUtils {
@@ -22,7 +18,7 @@ class UserUtils {
     callerCollectionName: string[]
   ): Promise<UserSocialData[]> {
     const sortedUsers = users.sort((a, b) => {
-      if (a.nftCollections.some(r => callerCollectionName.includes(r))) {
+      if (a.nftCollections.some((r) => callerCollectionName.includes(r))) {
         return -2;
       } else if (a.nftLength > b.nftLength) {
         return -1;
@@ -36,11 +32,13 @@ class UserUtils {
     return sortedUsers;
   }
 
-  public async sortSocialUsers( users: UserSocialData[] ): Promise<UserSocialData[]> {
+  public async sortSocialUsers(
+    users: UserSocialData[]
+  ): Promise<UserSocialData[]> {
     const sortedUsers = users.sort((a, b) => {
       if (a.nftLength > b.nftLength) {
         return -1;
-      } else if(a.nftLength < b.nftLength) {
+      } else if (a.nftLength < b.nftLength) {
         return 1;
       } else {
         return 0;

@@ -1,62 +1,28 @@
 import * as fcl from "@onflow/fcl";
-import { getCollectionsData_query } from "./scripts/getCollectionsData_query";
-import { getNftsData_query } from "./scripts/getNftsData_query";
-import { getStoredPaths_query } from "./scripts/getStoredPaths_query";
-import { splitList } from "./utils/Utils";
+import { getUserCollections_query } from "./scripts/getUserCollections_query";
+import { getAllUserNfts_query } from "./scripts/getUserNfts_query";
 
 class FclService {
-  async getNfts(addresses: string[]) {
-    const removedNullAddresses = addresses.filter(address => address != null && address != undefined && address != "")
-    const paths = await this.getStorages(removedNullAddresses);
-
-    const promises = paths.map((group) => {
-      return this.getStoredNfts(removedNullAddresses, group);
-    });
-    return await Promise.all(promises);
-  }
-  async getCollectionIds(addresses: string[]) {
-    const removedNullAddresses = addresses.filter(address => address != null && address != undefined && address != "")
-    const paths = await this.getStorages(removedNullAddresses);
-
-    const promises = paths.map((group) => {
-      return this.getStoredItems(removedNullAddresses, group);
-    });
-    return await Promise.all(promises);
-  }
-  async getStoredNfts(addresses: string[], paths) {
+  async getAllUserNfts(addresses: string[]) {
+    let checkedAddresses = addresses.filter(address => address != null && address != undefined && address != "")
     const response = await fcl.query({
-      cadence: getNftsData_query,
+      cadence: getAllUserNfts_query,
       args: (arg, t) => [
-        arg(addresses, t.Array(t.Address)),
-        arg(paths, t.Array(t.String)),
+        arg(checkedAddresses, t.Array(t.Address))
       ],
     });
     return response;
   }
-  async getStoredItems(addresses: string[], paths) {
+
+  async getAllUserCollections(addresses: string[]) {
+    let checkedAddresses = addresses.filter(address => address != null && address != undefined && address != "")
     const response = await fcl.query({
-      cadence: getCollectionsData_query,
+      cadence: getUserCollections_query,
       args: (arg, t) => [
-        arg(addresses, t.Array(t.Address)),
-        arg(paths, t.Array(t.String)),
+        arg(checkedAddresses, t.Array(t.Address))
       ],
     });
     return response;
-  }
-  async getStorages(addresses: string[]){
-    const response = await fcl.query({
-      cadence: getStoredPaths_query,
-      args: (arg, t) => [
-        arg(addresses, t.Array(t.Address)),
-      ],
-    });
-
-    const groups = splitList(
-      response.map((p) => p.identifier),
-      50
-    );
-
-    return groups;
   }
 }
 
