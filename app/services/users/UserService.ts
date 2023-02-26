@@ -166,7 +166,7 @@ class UserService {
       ],
     });
 
-    let customNfts = user.customNfts;
+    let customNfts = user.dataValues.customNfts;
     let interflowCustoms = customNfts.map((nft) => {
       return {
         id: nft.dataValues.customNftId,
