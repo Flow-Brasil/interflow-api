@@ -196,12 +196,19 @@ class UserService {
   // NFTS COLLECTIONS --------------------------
   // ------------------------------------------
   async getAllUserCollections(id: string): Promise<any> {
-    const user = await this.getUser(id);
+    const user = await userRepository.findByPk(id, {
+      include: [
+        {
+          association: "customNfts",
+        },
+      ],
+    });
+
+    let customNfts = user.dataValues.customNfts;
     if (
-      (user.dataValues.dapperAddress === null ||
-        user.dataValues.dapperAddress === "") &&
-      (user.dataValues.bloctoAddress === null ||
-        user.dataValues.bloctoAddress === "")
+      (user.dataValues.dapperAddress === null || user.dataValues.dapperAddress === "") &&
+      (user.dataValues.bloctoAddress === null || user.dataValues.bloctoAddress === "") &&
+      customNfts.length === 0
     ) {
       let userCompleteData: UserCompleteData = {
         user: user.dataValues,
@@ -209,7 +216,7 @@ class UserService {
       };
       return userCompleteData;
     } else {
-      const collections = await FlowService.getAllUserCollection(
+      let collections = await FlowService.getAllUserCollection(
         user.dataValues
       );
 
@@ -219,9 +226,22 @@ class UserService {
         return acc + +collection.nftLength;
       }, 0);
 
+      let totalLengthWithCustoms = totalLength + customNfts.length;
+
+      if(customNfts.length > 0) {
+        userCollectionsNames.push("Interflow Custom");
+        collections = {...collections, "Interflow Custom": {
+          nftLength: customNfts.length,
+          collectionIdentifier: "Interflow Custom",
+          collectionName: "Interflow Custom",
+          collectionSquareImage: "https://interflow-app.s3.amazonaws.com/logo.png",
+          collectionBannerImage: "https://interflow-app.s3.amazonaws.com/bgImage.png",
+        }}
+      }
+
       await user.update({
         nftCollections: userCollectionsNames,
-        nftLength: totalLength,
+        nftLength: totalLengthWithCustoms,
       });
 
       let userCompleteData: UserCompleteData = {
