@@ -269,6 +269,7 @@ class WalletService {
   // --------------------------------------------
 
   async mintInterflowCustom(
+    nftId: string,
     userInterflowAddress: string,
     nftCollectionName: string,
     nftImageLink: string,
@@ -284,11 +285,39 @@ class WalletService {
 
       const ADMIN_ADDRESS = "0xfe514356a985ec2a";
       const data = await TransactionGenerator.generateMintCustomNftTransaction(
+        nftId,
         nftCollectionName,
         nftImageLink,
         nftUuid,
         userInterflowAddress
       );
+      await AxiosService.post(`/accounts/${ADMIN_ADDRESS}/sign`, data);
+      const jobId = await AxiosService.post(
+        `/accounts/${ADMIN_ADDRESS}/transactions`,
+        data
+      );
+
+      return jobId;
+    } catch (error) {
+      console.log(error);
+      return error;
+    }
+  }
+
+  async revealInterflowCustom(
+    userInterflowAddress: string,
+    nftId: string
+  ) {
+    try {
+      if (
+        userInterflowAddress == "NO-ADDRESS" ||
+        userInterflowAddress == null ||
+        userInterflowAddress == ""
+      )
+        return "NO-ADDRESS";
+
+      const ADMIN_ADDRESS = "0xfe514356a985ec2a";
+      const data = await TransactionGenerator.generateRevealCustomNftTransaction( userInterflowAddress, nftId );
       await AxiosService.post(`/accounts/${ADMIN_ADDRESS}/sign`, data);
       const jobId = await AxiosService.post(
         `/accounts/${ADMIN_ADDRESS}/transactions`,

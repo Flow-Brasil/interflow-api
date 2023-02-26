@@ -17,9 +17,10 @@ class AiImageService {
         return "User not found"
       }
       const userInterflowAddress = user.interflowAddress;
+      const nftId = await interflowCustomRepository.length + 1;
 
       const interflowCustom = await interflowCustomRepository.create({
-        customNftId: "",
+        customNftId: nftId.toString(),
         customNftUuid: nftData.nftUuid,
         aiGeneratedImage: false,
         customNftImageLink: "",
@@ -37,6 +38,7 @@ class AiImageService {
       });
 
       const jobId = await WalletService.mintInterflowCustom(
+        nftId.toString(),
         userInterflowAddress,
         nftData.nftCollectionName,
         nftData.nftImageLink,
@@ -55,34 +57,43 @@ class AiImageService {
     }
   }
 
-  async updateMintedInterflowCustom(jobId: string){
-    const interflowCustom = await interflowCustomRepository.findOne({
-      where: {
-        jobId: jobId,
-      },
-    });
-
-  }
-
   async revealInterflowCustom(
-    id: string,
-    customNftImageLink: any
+    id: string
   ): Promise<any> {
     try {
       const interflowCustom = await interflowCustomRepository.findByPk(id);
-      const data = {
-        code: "",
-        arguments: [],
-      };
 
-      interflowCustom.customNftImageLink = customNftImageLink;
-      interflowCustom.aiGeneratedImage = true;
-      interflowCustom.readyToReveal = true;
-      interflowCustom.jobId = "";
+      if (!interflowCustom) {
+        return "Interflow Custom not found";
+      }
 
-      interflowCustom.revealed = false;
-      interflowCustom.minted = false;
-      await interflowCustom.save();
+      let readyToReveal = interflowCustom.dataValues.readyToReveal;
+
+      if(!readyToReveal) {
+        return "Not ready to reveal";
+      }
+
+      let customNftLink = `https://interflow-app.s3.amazonaws.com/${interflowCustom.dataValues.customNftId}.png`
+
+      const revealJobId = await WalletService.revealInterflowCustom(interflowCustom.dataValues.userInterflowAddress, interflowCustom.dataValues.customNftId)
+      await interflowCustom.update({ revealJobId: revealJobId.jobId, customNftImageLink: customNftLink })
+
+      return interflowCustom;
+    } catch (error) {
+      console.log("ERROR", error);
+      return error;
+    }
+  }
+
+  async allowReveal(id: string): Promise<any> {
+    try {
+      const interflowCustom = await interflowCustomRepository.findByPk(id);
+
+      if (!interflowCustom) {
+        return "Interflow Custom not found";
+      }
+
+      await interflowCustom.update({ readyToReveal: true })
       return interflowCustom;
     } catch (error) {
       console.log("ERROR", error);
