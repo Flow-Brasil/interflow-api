@@ -16,6 +16,12 @@ class AiImageService {
       if(!user) {
         return "User not found"
       }
+      let userTokens = user.dataValues.interflowTokens
+
+      if(userTokens < 10) {
+        return "You don't have enough tokens to mint this NFT"
+      }
+
       const userInterflowAddress = user.interflowAddress;
       const nftId = await interflowCustomRepository.length + 1;
 
@@ -49,6 +55,7 @@ class AiImageService {
 
       
       await interflowCustom.update({ jobId: jobId.jobId })
+      await user.update({ interflowTokens: userTokens - 10 })
 
       return interflowCustom;
     } catch (error) {
