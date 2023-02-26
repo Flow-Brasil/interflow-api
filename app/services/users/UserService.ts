@@ -182,10 +182,9 @@ class UserService {
 
     console.log("customNfts", interflowCustoms);
     if (
-      (user.dataValues.dapperAddress === null ||
-        user.dataValues.dapperAddress === "") &&
-      (user.dataValues.bloctoAddress === null ||
-        user.dataValues.bloctoAddress === "")
+      (user.dataValues.dapperAddress === null || user.dataValues.dapperAddress === "") &&
+      (user.dataValues.bloctoAddress === null || user.dataValues.bloctoAddress === "") && 
+      interflowCustoms.length === 0
     )
       return { message: "User has no NFTs" };
 
