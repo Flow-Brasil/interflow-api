@@ -5,6 +5,7 @@ import { Op } from "sequelize";
 import AxiosService from "../axios/AxiosService";
 import TransactionGenerator from "../ai-image/utils/TransactionGenerator";
 import { InterflowCustomNft } from "@models/interflow-custom-nft/InterflowCustomNft";
+import UtilsService from "./Utils/UtilsService";
 
 const walletRepository = sequelize.getRepository(account);
 const userRespository = sequelize.getRepository(User);
@@ -18,19 +19,6 @@ class WalletService {
       return accountJob;
     } catch (error) {
       console.log("CONNECTION PROBLEM WITH INTERFLOW WALLET API");
-    }
-  }
-
-  async checkInitializedWallet(wallet: string){
-    try {
-      console.log('was hereeee inside check init')
-      const data = await TransactionGenerator.generateCheckInitializedWallet(wallet);
-      const result = await AxiosService.post(`/scripts`, data);
-      console.log("WAS HERE CHECK WALLET", wallet, result)
-      return result
-    } catch (error) {
-      console.log(error);
-      return error;
     }
   }
 
@@ -98,11 +86,11 @@ class WalletService {
             if (wallet) {
               await wallet.update({ interflow_user_id: user.dataValues.id });
 
-              console.log('WAS HERE 12313212321', wallet)
               //CHECK IF THE WALLET IS INITIALIZED
-              const isInit = await this.checkInitializedWallet(wallet.dataValues.address)
+              let isInit = await UtilsService.checkInitializedWallet(wallet.dataValues.address)
+
               if(!isInit) {
-                const jobId = await this.initInterflowCustomCollection(wallet.dataValues.address);
+                const jobId = await UtilsService.initInterflowCustomCollection(wallet.dataValues.address);
                 await user.update({
                   interflowAddress: wallet.dataValues.address,
                   interflowCollectionInitializedJobId: jobId.jobId,
@@ -111,7 +99,8 @@ class WalletService {
               }
                   
               await user.update({
-                interflowAddress: wallet.dataValues.address
+                interflowAddress: wallet.dataValues.address,
+                interflowCollectionInitialized: true
               });
 
               
@@ -134,9 +123,9 @@ class WalletService {
         await wallet.update({ interflow_user_id: user.dataValues.id });
 
         //CHECK IF THE WALLET IS INITIALIZED
-        const isInit = await this.checkInitializedWallet(wallet.dataValues.address)
+        const isInit = await UtilsService.checkInitializedWallet(wallet.dataValues.address)
               if(!isInit) {
-                const jobId = await this.initInterflowCustomCollection(wallet.dataValues.address);
+                const jobId = await UtilsService.initInterflowCustomCollection(wallet.dataValues.address);
                 await user.update({
                   interflowAddress: wallet.dataValues.address,
                   interflowCollectionInitializedJobId: jobId.jobId,
@@ -145,7 +134,8 @@ class WalletService {
               }
                   
               await user.update({
-                interflowAddress: wallet.dataValues.address
+                interflowAddress: wallet.dataValues.address,
+                interflowCollectionInitialized: true
               });
 
         return wallet.address;
@@ -277,29 +267,6 @@ class WalletService {
   // --------------------------------------------
   // INTERFLOW CUSTOM ---------------------------
   // --------------------------------------------
-  async initInterflowCustomCollection(interflowAddress: string) {
-    try {
-      if (
-        interflowAddress == "NO-ADDRESS" ||
-        interflowAddress == null ||
-        interflowAddress == ""
-      )
-        return "NO-ADDRESS";
-
-      const data =
-        await TransactionGenerator.generateInitCustomCollectionTransaction();
-      await AxiosService.post(`/accounts/${interflowAddress}/sign`, data);
-      const jobId = await AxiosService.post(
-        `/accounts/${interflowAddress}/transactions`,
-        data
-      );
-
-      return jobId;
-    } catch (error) {
-      console.log(error);
-      return error;
-    }
-  }
 
   async mintInterflowCustom(
     userInterflowAddress: string,

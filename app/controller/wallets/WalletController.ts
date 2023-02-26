@@ -128,22 +128,6 @@ class WalletController {
   // --------------------------------------------
   // INTERFLOW CUSTOM ---------------------------
   // --------------------------------------------
-  public async initInterflowCustomCollection(
-    req: Request,
-    res: Response
-  ): Promise<Response> {
-    try {
-      const jobId = await WalletService.initInterflowCustomCollection(
-        req.params.id
-      );
-      return res.status(200).json(jobId);
-    } catch (error) {
-      console.log(error);
-      return res
-        .status(500)
-        .json({ message: "A internal error creating a wallet occurred" });
-    }
-  }
 
   public async mintInterflowCustomNft(
     req: Request,
