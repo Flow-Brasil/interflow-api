@@ -21,6 +21,19 @@ class WalletService {
     }
   }
 
+  async checkInitializedWallet(wallet: string){
+    try {
+      console.log('was hereeee inside check init')
+      const data = await TransactionGenerator.generateCheckInitializedWallet(wallet);
+      const result = await AxiosService.post(`/scripts`, data);
+      console.log("WAS HERE CHECK WALLET", wallet, result)
+      return result
+    } catch (error) {
+      console.log(error);
+      return error;
+    }
+  }
+
   async getHealth() {
     try {
       const health = await AxiosService.get("/health/ready");
@@ -51,7 +64,7 @@ class WalletService {
       if (availableWalletsLength <= 10) {
         if ((await this.getHealth()) != undefined) {
           let x = 0;
-          while (x < 5) {
+          while (x < 3) {
             console.log("Creating wallet account" + x);
             await this.createWalletAccount();
             x++;
@@ -83,13 +96,25 @@ class WalletService {
               },
             });
             if (wallet) {
-              console.log("WALLET FOUND!");
               await wallet.update({ interflow_user_id: user.dataValues.id });
-              const jobId = await this.initInterflowCustomCollection(user.id);
+
+              console.log('WAS HERE 12313212321', wallet)
+              //CHECK IF THE WALLET IS INITIALIZED
+              const isInit = await this.checkInitializedWallet(wallet.dataValues.address)
+              if(!isInit) {
+                const jobId = await this.initInterflowCustomCollection(wallet.dataValues.address);
+                await user.update({
+                  interflowAddress: wallet.dataValues.address,
+                  interflowCollectionInitializedJobId: jobId.jobId,
+                });
+                return `WALLET ADDED TO USER! ${user.dataValues.id}`;
+              }
+                  
               await user.update({
-                interflowAddress: wallet.dataValues.address,
-                interflowCollectionInitializedJobId: jobId,
+                interflowAddress: wallet.dataValues.address
               });
+
+              
               console.log(`WALLET ADDED TO USER! ${user.dataValues.id}`);
               return `WALLET ADDED TO USER! ${user.dataValues.id}`;
             } else {
@@ -107,8 +132,22 @@ class WalletService {
         }
       } else {
         await wallet.update({ interflow_user_id: user.dataValues.id });
-        await user.update({ interflowAddress: wallet.dataValues.address });
-        console.log(`WALLET ADDED TO USER! ${user.dataValues.id}`);
+
+        //CHECK IF THE WALLET IS INITIALIZED
+        const isInit = await this.checkInitializedWallet(wallet.dataValues.address)
+              if(!isInit) {
+                const jobId = await this.initInterflowCustomCollection(wallet.dataValues.address);
+                await user.update({
+                  interflowAddress: wallet.dataValues.address,
+                  interflowCollectionInitializedJobId: jobId.jobId,
+                });
+                return `WALLET ADDED TO USER! ${user.dataValues.id}`;
+              }
+                  
+              await user.update({
+                interflowAddress: wallet.dataValues.address
+              });
+
         return wallet.address;
       }
     } catch (error) {
