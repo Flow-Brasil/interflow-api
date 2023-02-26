@@ -20,9 +20,15 @@ class PostService {
         postText: postData.postText,
         timestamp: postData.timestamp,
         isOwner: postData.isOwner,
+        minted: false,
+        jobId: "",
         user: postData.user,
         userId: postData.userId,
       });
+
+      //Call NFT API to mint NFT
+
+
       return post;
     } catch (err: any) {
       console.log(err);

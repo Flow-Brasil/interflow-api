@@ -10,10 +10,13 @@ walletRoutes.get("/wallets/getAvailableWallets", WalletController.getAllAvailabl
 walletRoutes.get("/wallets/getAvailableWalletsLength", WalletController.getAllAvailableWalletsLength);
 walletRoutes.get("/wallets/getUsedWallets", WalletController.getAllUsedWallets);
 walletRoutes.get("/wallets/getAllJobs", WalletController.getAllJobs);
+walletRoutes.get("/wallets/getJob/:id", WalletController.getJob);
 
 // ------------ POST REQUESTS
 walletRoutes.post("/wallets/setWalletToUsersWithoutOne", WalletController.setWalletToUsersWithoutOne);
 walletRoutes.post("/wallets/createWallet", WalletController.createWallet);
+walletRoutes.post("/wallets/initCustomCollection/:id", WalletController.initInterflowCustomCollection);
+walletRoutes.post("/wallets/mintInterflowCustom", WalletController.initInterflowCustomCollection);
 
 
 export default walletRoutes;

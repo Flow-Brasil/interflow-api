@@ -8,9 +8,10 @@ import { json, urlencoded } from "body-parser";
 import cors from "cors";
 import userRoutes from "./routes/users/user.routes";
 import walletRoutes from "@routes/wallets/wallet.routes";
-import "./config"
+import "./config";
 import postRoutes from "@routes/posts/posts.routes";
 import stripeRoutes from "@routes/stripe/stripe.routes";
+import aiImageRoute from "@routes/ai-image/ai-image.routes";
 
 class App {
   public app: express.Application;
@@ -24,9 +25,7 @@ class App {
   private middleware(): void {
     this.app.use(
       cors({
-        origin: [
-          "*",
-        ],
+        origin: ["*"],
       })
     );
     this.app.use(json());
@@ -41,8 +40,9 @@ class App {
   private routes(): void {
     this.app.use(userRoutes);
     this.app.use(walletRoutes);
-    this.app.use(postRoutes)
-    this.app.use(stripeRoutes)
+    this.app.use(postRoutes);
+    this.app.use(stripeRoutes);
+    this.app.use(aiImageRoute);
 
     this.app.get("/healthz", (req, res) => {
       res.json({ interflowAuth: true });

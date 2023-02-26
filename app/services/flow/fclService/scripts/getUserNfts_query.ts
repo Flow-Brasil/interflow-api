@@ -7,6 +7,7 @@ import NFTRetrieval from 0x324c34e1c517e4db
 
 pub struct NFT {
     pub let id: UInt64
+    pub let uuid: String
     pub let name: String
     pub let description: String
     pub let thumbnail: String
@@ -19,6 +20,7 @@ pub struct NFT {
 
     init(
         id: UInt64,
+        uuid: String,
         name: String,
         description: String,
         thumbnail: String,
@@ -30,6 +32,7 @@ pub struct NFT {
         collectionBannerImage: String,
     ) {
         self.id = id
+        self.uuid = uuid
         self.name = name
         self.description = description
         self.thumbnail = thumbnail
@@ -82,9 +85,8 @@ pub fun main(ownerAddresses: [Address]): {String: [NFT]} {
             let externalURLView = view.externalURL
             let collectionDataView = view.collectionData
             let collectionDisplayView = view.collectionDisplay
-            let royaltyView = view.royalties
 
-            if (displayView == nil || externalURLView == nil || collectionDataView == nil || collectionDisplayView == nil || royaltyView == nil) {
+            if (displayView == nil || externalURLView == nil || collectionDataView == nil || collectionDisplayView == nil) {
                 // This NFT does not have the proper views implemented. Skipping....
                 continue
             }
@@ -92,6 +94,7 @@ pub fun main(ownerAddresses: [Address]): {String: [NFT]} {
             items.append(
                 NFT(
                     id: view.id,
+                    uuid: view.uuid.toString(),
                     name: displayView!.name,
                     description: displayView!.description,
                     thumbnail: displayView!.thumbnail.uri(),

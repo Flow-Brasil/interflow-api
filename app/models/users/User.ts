@@ -1,9 +1,17 @@
+import { InterflowCustomNft } from "@models/interflow-custom-nft/InterflowCustomNft";
 import { Post } from "@models/posts/Post";
-import { DataType, Column, Default, Model, PrimaryKey, Table, HasMany, ForeignKey } from "sequelize-typescript";
+import {
+  DataType,
+  Column,
+  Default,
+  Model,
+  PrimaryKey,
+  Table,
+  HasMany,
+} from "sequelize-typescript";
 
 @Table
 export class User extends Model {
-
   @Default(DataType.UUIDV4)
   @PrimaryKey
   @Column(DataType.UUID)
@@ -51,4 +59,6 @@ export class User extends Model {
   @HasMany(() => Post)
   userPosts!: Post[];
 
+  @HasMany(() => InterflowCustomNft)
+  customNfts!: InterflowCustomNft[];
 }

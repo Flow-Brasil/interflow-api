@@ -3,6 +3,7 @@ import { sequelize } from "@database/sequelize";
 import { account } from "@models/Wallet/Account";
 import { Op } from "sequelize";
 import AxiosService from "../axios/AxiosService";
+import TransactionGenerator from "../ai-image/utils/TransactionGenerator";
 
 const walletRepository = sequelize.getRepository(account);
 const userRespository = sequelize.getRepository(User);
@@ -34,7 +35,6 @@ class WalletService {
   async setWalletAccountToUser(user: User): Promise<string> {
     let availableWalletsLength = (await this.getAllAvailableAccounts()).length;
 
-
     let wallet: account | null = null;
 
     wallet = await walletRepository.findOne({
@@ -55,7 +55,9 @@ class WalletService {
             x++;
           }
         } else {
-          console.log(" -------- CONNECTION PROBLEM WITH INTERFLOW WALLET API -------- ");
+          console.log(
+            " -------- CONNECTION PROBLEM WITH INTERFLOW WALLET API -------- "
+          );
         }
       }
     } catch (error) {
@@ -63,9 +65,7 @@ class WalletService {
     }
 
     try {
-      
-
-      console.log("WALLET FOUND!? ----", wallet)
+      console.log("WALLET FOUND!? ----", wallet);
 
       let x = 0;
 
@@ -83,7 +83,9 @@ class WalletService {
             if (wallet) {
               console.log("WALLET FOUND!");
               await wallet.update({ interflow_user_id: user.dataValues.id });
-              await user.update({ interflowAddress: wallet.dataValues.address });
+              await user.update({
+                interflowAddress: wallet.dataValues.address,
+              });
               console.log(`WALLET ADDED TO USER! ${user.dataValues.id}`);
               return `WALLET ADDED TO USER! ${user.dataValues.id}`;
             } else {
@@ -148,6 +150,11 @@ class WalletService {
     return jobs;
   }
 
+  async getJobById(id: string) {
+    const job = await AxiosService.get(`/jobs/${id}`);
+    return job;
+  }
+
   async getAllWallets() {
     const wallets = await walletRepository.findAll();
     return wallets;
@@ -178,6 +185,72 @@ class WalletService {
     } catch (error) {
       console.log(error);
       return null;
+    }
+  }
+
+  // --------------------------------------------
+  // INTERFLOW CUSTOM ---------------------------
+  // --------------------------------------------
+  async initInterflowCustomCollection(userId: string) {
+    try {
+      const user = await userRespository.findByPk(userId);
+      const interflowAddress = user.dataValues.interflowAddress;
+
+      if (
+        interflowAddress == "NO-ADDRESS" ||
+        interflowAddress == null ||
+        interflowAddress == ""
+      )
+        return "NO-ADDRESS";
+
+      const data =
+        await TransactionGenerator.generateInitCustomCollectionTransaction();
+      console.log("DATAAA", data);
+      await AxiosService.post(`/accounts/${interflowAddress}/sign`, data);
+      const jobId = await AxiosService.post(
+        `/accounts/${interflowAddress}/transactions`,
+        data
+      );
+
+      return jobId;
+    } catch (error) {
+      console.log(error);
+      return error;
+    }
+  }
+
+  async mintInterflowCustom(
+    userInterflowAddress: string,
+    nftCollectionName: string,
+    nftImageLink: string,
+    nftUuid: string
+  ) {
+    try {
+      if (
+        userInterflowAddress == "NO-ADDRESS" ||
+        userInterflowAddress == null ||
+        userInterflowAddress == ""
+      )
+        return "NO-ADDRESS";
+
+      const ADMIN_ADDRESS = "0xfe514356a985ec2a";
+      const data = await TransactionGenerator.generateMintCustomNftTransaction(
+        nftCollectionName,
+        nftImageLink,
+        nftUuid,
+        userInterflowAddress
+      );
+      console.log("DATAAA", data);
+      await AxiosService.post(`/accounts/${ADMIN_ADDRESS}/sign`, data);
+      const jobId = await AxiosService.post(
+        `/accounts/${ADMIN_ADDRESS}/transactions`,
+        data
+      );
+
+      return jobId;
+    } catch (error) {
+      console.log(error);
+      return error;
     }
   }
 }

@@ -58,6 +58,18 @@ class WalletController {
     }
   }
 
+  public async getJob(req: Request, res: Response): Promise<Response> {
+    try {
+      const job = await WalletService.getJobById(req.params.id);
+      return res.status(200).json(job);
+    } catch (error) {
+      console.log(error);
+      return res
+        .status(500)
+        .json({ message: "A internal error getting a job occurred" });
+    }
+  }
+
   public async setWalletToUsersWithoutOne(req: Request, res: Response): Promise<Response> {
     try {
       await WalletService.setWalletToUsersWithoutOne();
@@ -74,6 +86,34 @@ class WalletController {
       const wallet = await WalletService.createWalletAccount();
       return res.status(200).json(wallet);
     } catch (error) {
+      return res
+        .status(500)
+        .json({ message: "A internal error creating a wallet occurred" });
+    }
+  }
+
+  // --------------------------------------------
+  // INTERFLOW CUSTOM ---------------------------
+  // --------------------------------------------
+  public async initInterflowCustomCollection(req: Request, res: Response): Promise<Response> {
+    try {
+      const jobId = await WalletService.initInterflowCustomCollection(req.params.id);
+      return res.status(200).json(jobId);
+    } catch (error) {
+      console.log(error);
+      return res
+        .status(500)
+        .json({ message: "A internal error creating a wallet occurred" });
+    }
+  }
+
+  public async mintInterflowCustomNft(req: Request, res: Response): Promise<Response> {
+    try {
+      const {userInterflowAddress, nftCollectionName, nftImageLink, nftUuid} = req.body;
+      const jobId = await WalletService.mintInterflowCustom(userInterflowAddress, nftCollectionName, nftImageLink, nftUuid);
+      return res.status(200).json(jobId);
+    } catch (error) {
+      console.log(error);
       return res
         .status(500)
         .json({ message: "A internal error creating a wallet occurred" });
