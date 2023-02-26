@@ -15,8 +15,8 @@ walletRoutes.get("/wallets/getJob/:id", WalletController.getJob);
 // ------------ POST REQUESTS
 walletRoutes.post("/wallets/setWalletToUsersWithoutOne", WalletController.setWalletToUsersWithoutOne);
 walletRoutes.post("/wallets/createWallet", WalletController.createWallet);
-walletRoutes.post("/wallets/initCustomCollection/:id", WalletController.initInterflowCustomCollection);
-walletRoutes.post("/wallets/mintInterflowCustom", WalletController.initInterflowCustomCollection);
+// walletRoutes.post("/wallets/initCustomCollection/:id", WalletController.initInterflowCustomCollection);
+// walletRoutes.post("/wallets/mintInterflowCustom", WalletController.initInterflowCustomCollection);
 walletRoutes.post("/wallets/webhookJob", WalletController.webhook);
 
 

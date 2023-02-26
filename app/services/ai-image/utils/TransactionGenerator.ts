@@ -1,3 +1,4 @@
+import { check_initialized_wallet } from "./scripts/check_initialized_wallet";
 import { init_interflow_custom } from "./scripts/init_interflow_custom";
 import { mint_interflow_custom } from "./scripts/mint_interflow_custom";
 
@@ -44,6 +45,18 @@ class TransactionGenerator {
         return {
             code: init_interflow_custom,
             arguments: [],
+        }
+    }
+
+    async generateCheckInitializedWallet(address: string){
+        return {
+            code: check_initialized_wallet,
+            arguments: [
+                {
+                    type: "Address",
+                    value: address,
+                }
+            ],
         }
     }
 
