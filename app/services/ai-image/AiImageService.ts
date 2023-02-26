@@ -12,18 +12,22 @@ const interflowCustomRepository = sequelize.getRepository(InterflowCustomNft);
 class AiImageService {
   async customizeNft(id: string, nftData: CustomizeNftData): Promise<any> {
     try {
-      const user = await UserService.findUserDataValue(id);
-      if(!user) {
-        return "User not found"
+      const user = await UserService.getUser(id);
+      if (!user) {
+        return "User not found";
       }
-      let userTokens = user.dataValues.interflowTokens
+      console.log("USER", user);
+      let userTokens = user.dataValues.interflowTokens;
 
-      if(userTokens < 10) {
-        return "You don't have enough tokens to mint this NFT"
+      if (userTokens < 10) {
+        return {
+          status: "FAILED",
+          message: "You don't have enough tokens to mint this NFT",
+        };
       }
 
-      const userInterflowAddress = user.interflowAddress;
-      const nftId = await interflowCustomRepository.length + 1;
+      const userInterflowAddress = user.dataValues.interflowAddress;
+      const nftId = (await interflowCustomRepository.length) + 1;
 
       const interflowCustom = await interflowCustomRepository.create({
         customNftId: nftId.toString(),
@@ -40,7 +44,7 @@ class AiImageService {
         revealed: false,
         userInterflowAddress: userInterflowAddress,
         userId: id,
-        user: user,
+        user: user.dataValues,
       });
 
       const jobId = await WalletService.mintInterflowCustom(
@@ -51,22 +55,19 @@ class AiImageService {
         nftData.nftUuid
       );
 
-      console.log("JOBID", jobId)
+      console.log("JOBID", jobId);
 
-      
-      await interflowCustom.update({ jobId: jobId.jobId })
-      await user.update({ interflowTokens: userTokens - 10 })
+      await interflowCustom.update({ jobId: jobId.jobId });
+      await user.update({ interflowTokens: userTokens - 10 });
 
-      return interflowCustom;
+      return { status: "COMPLETE", ...interflowCustom.dataValues };
     } catch (error) {
       console.log("ERROR", error);
       return error;
     }
   }
 
-  async revealInterflowCustom(
-    id: string
-  ): Promise<any> {
+  async revealInterflowCustom(id: string): Promise<any> {
     try {
       const interflowCustom = await interflowCustomRepository.findByPk(id);
 
@@ -76,14 +77,20 @@ class AiImageService {
 
       let readyToReveal = interflowCustom.dataValues.readyToReveal;
 
-      if(!readyToReveal) {
+      if (!readyToReveal) {
         return "Not ready to reveal";
       }
 
-      let customNftLink = `https://interflow-app.s3.amazonaws.com/${interflowCustom.dataValues.customNftId}.png`
+      let customNftLink = `https://interflow-app.s3.amazonaws.com/${interflowCustom.dataValues.customNftId}.png`;
 
-      const revealJobId = await WalletService.revealInterflowCustom(interflowCustom.dataValues.userInterflowAddress, interflowCustom.dataValues.customNftId)
-      await interflowCustom.update({ revealJobId: revealJobId.jobId, customNftImageLink: customNftLink })
+      const revealJobId = await WalletService.revealInterflowCustom(
+        interflowCustom.dataValues.userInterflowAddress,
+        interflowCustom.dataValues.customNftId
+      );
+      await interflowCustom.update({
+        revealJobId: revealJobId.jobId,
+        customNftImageLink: customNftLink,
+      });
 
       return interflowCustom;
     } catch (error) {
@@ -100,7 +107,7 @@ class AiImageService {
         return "Interflow Custom not found";
       }
 
-      await interflowCustom.update({ readyToReveal: true })
+      await interflowCustom.update({ readyToReveal: true });
       return interflowCustom;
     } catch (error) {
       console.log("ERROR", error);
