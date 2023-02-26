@@ -27,7 +27,7 @@ class AiImageService {
       }
 
       const userInterflowAddress = user.dataValues.interflowAddress;
-      const nftId = (await interflowCustomRepository.findAll.length) + 1;
+      const nftId = (await interflowCustomRepository.findAll()).length + 1;
 
       const interflowCustom = await interflowCustomRepository.create({
         customNftId: nftId.toString(),
