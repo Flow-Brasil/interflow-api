@@ -5,7 +5,6 @@ class AxiosService {
     const config = {
       method: "get",
       url: `${process.env.WALLET_URL}${url}`,
-      // url: `http://localhost:3000/v1${url}`,
       headers: {
         "Content-Type": "application/json",
       },
@@ -26,7 +25,6 @@ class AxiosService {
     const config = {
       method: "post",
       url: `${process.env.WALLET_URL}${url}`,
-      // url: `http://localhost:3000/v1${url}`,
       headers: {
         "Content-Type": "application/json",
       },

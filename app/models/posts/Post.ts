@@ -30,6 +30,12 @@ export class Post extends Model {
   @Column(DataType.BOOLEAN)
   isOwner!: boolean;
 
+  @Column(DataType.BOOLEAN)
+  minted!: boolean;
+
+  @Column(DataType.STRING)
+  jobId!: string;
+
   @ForeignKey(() => User)
   @Column(DataType.UUID)
   userId!: string;
