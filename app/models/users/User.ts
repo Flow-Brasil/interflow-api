@@ -32,6 +32,12 @@ export class User extends Model {
   @Column(DataType.STRING)
   interflowAddress!: string;
 
+  @Column(DataType.BOOLEAN)
+  interflowCollectionInitialized!: boolean;
+
+  @Column(DataType.STRING)
+  interflowCollectionInitializedJobId!: string;
+
   @Column(DataType.STRING)
   bloctoAddress!: string;
 

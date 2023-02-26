@@ -85,8 +85,10 @@ class WalletService {
             if (wallet) {
               console.log("WALLET FOUND!");
               await wallet.update({ interflow_user_id: user.dataValues.id });
+              const jobId = await this.initInterflowCustomCollection(user.id);
               await user.update({
                 interflowAddress: wallet.dataValues.address,
+                interflowCollectionInitializedJobId: jobId,
               });
               console.log(`WALLET ADDED TO USER! ${user.dataValues.id}`);
               return `WALLET ADDED TO USER! ${user.dataValues.id}`;
@@ -193,31 +195,42 @@ class WalletService {
   // --------------------------------------------
   // WEBHOOK ---------------------------
   // --------------------------------------------
-  async getWebhook(jobId: string, type: string, status: string){
+  async getWebhook(jobId: string, type: string, state: string) {
     try {
-      if(status == "COMPLETE" && type == "transaction"){  
-        console.log('JOB ID WAS HERE ----', jobId);
+      if (state == "COMPLETE" && type == "transaction") {
+        console.log("JOB ID WAS HERE ----", jobId);
         const interflowCustom = await interflowCustomRepository.findOne({
           where: {
-            [Op.or]: [
-              {jobId: jobId},
-              {revealJobId: jobId}
-            ]
-          }
+            [Op.or]: [{ jobId: jobId }, { revealJobId: jobId }],
+          },
         });
-  
-        if(!interflowCustom) return "ANY INTERFLOW CUSTOM FOUND";
-  
-        if(interflowCustom.dataValues.minted){
-          await interflowCustom.update({ revealed: true })
-        } else {
-          await interflowCustom.update({ minted: true })
+
+        if (interflowCustom) {
+          if (interflowCustom.dataValues.minted) {
+            await interflowCustom.update({ revealed: true });
+            return interflowCustom;
+          } else {
+            await interflowCustom.update({ minted: true });
+            return interflowCustom;
+          }
         }
-  
-        return interflowCustom;
+
+        console.log('WAS HERE ----- SEARCHING USER! --------- ')
+        const user = await userRespository.findOne({
+          where: {
+            interflowCollectionInitializedJobId: jobId,
+          },
+        });
+
+        if (user) {
+          await user.update({ interflowCollectionInitialized: true });
+          return user;
+        } else {
+          return "ANY INTERFLOW CUSTOM OR USER FOUND";
+        }
       }
     } catch (error) {
-      console.log('ERROR -----',error);
+      console.log("ERROR -----", error);
       return error;
     }
   }
@@ -225,11 +238,8 @@ class WalletService {
   // --------------------------------------------
   // INTERFLOW CUSTOM ---------------------------
   // --------------------------------------------
-  async initInterflowCustomCollection(userId: string) {
+  async initInterflowCustomCollection(interflowAddress: string) {
     try {
-      const user = await userRespository.findByPk(userId);
-      const interflowAddress = user.dataValues.interflowAddress;
-
       if (
         interflowAddress == "NO-ADDRESS" ||
         interflowAddress == null ||

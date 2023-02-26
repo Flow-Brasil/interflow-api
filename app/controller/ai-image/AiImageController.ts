@@ -31,7 +31,7 @@ class AiImage {
 
   async getAllInterflowCustomFromUser(req: Request, res: Response): Promise<Response> {
     try {
-        const interflowCustom = await AiImageService.getAllInterflowCustomFromUser(req.body.id);
+        const interflowCustom = await AiImageService.getAllInterflowCustomFromUser(req.params.id);
         return res.status(200).json(interflowCustom);
     } catch (error) {
       console.log("ERROR", error);

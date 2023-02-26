@@ -40,6 +40,8 @@ class UserService {
         nickname: nickname,
         email: email,
         interflowAddress: "",
+        interflowCollectionInitialized: false,
+        interflowCollectionInitializedJobId: "",
         interflowTokens: 0,
         bloctoAddress: null,
         dapperAddress: null,

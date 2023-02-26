@@ -114,8 +114,8 @@ class WalletController {
   public async webhook(req: Request, res: Response): Promise<Response> {
     try {
       console.log("Webhook received -------", req.body)
-      const { jobId, type, status } = req.body;
-      await WalletService.getWebhook(jobId, type, status);
+      const { jobId, type, state } = req.body;
+      await WalletService.getWebhook(jobId, type, state);
       return res.status(200).json({ message: "Webhook received" });
     } catch (error) {
       console.log(error);

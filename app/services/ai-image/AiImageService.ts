@@ -45,8 +45,8 @@ class AiImageService {
 
       console.log("JOBID", jobId)
 
-      interflowCustom.jobId = jobId.jobId;
-      await interflowCustom.save();
+      
+      await interflowCustom.update({ jobId: jobId.jobId })
 
       return interflowCustom;
     } catch (error) {
