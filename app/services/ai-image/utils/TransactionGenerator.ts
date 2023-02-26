@@ -1,9 +1,11 @@
 import { check_initialized_wallet } from "./scripts/check_initialized_wallet";
 import { init_interflow_custom } from "./scripts/init_interflow_custom";
 import { mint_interflow_custom } from "./scripts/mint_interflow_custom";
+import { reveal_interflow_custom } from "./scripts/reveal_interflow_custom";
 
 class TransactionGenerator {
     async generateMintCustomNftTransaction(
+        nftId: string,
         nftCollectionName: string,
         nftImageLink: string,
         nftUuid: string,
@@ -16,6 +18,10 @@ class TransactionGenerator {
                 {
                     type: "Address",
                     value: userInterflowAddress,
+                },
+                {
+                    type: "UInt64",
+                    value: nftId,
                 },
                 {
                     type: "String",
@@ -36,6 +42,22 @@ class TransactionGenerator {
                 {
                     type: "String",
                     value: nftCollectionName,
+                }
+            ],
+        }
+    }
+
+    async generateRevealCustomNftTransaction(interflowAddress: string, nftId: string){
+        return {
+            code: reveal_interflow_custom,
+            arguments: [
+                {
+                    type: "Address",
+                    value: interflowAddress,
+                },
+                {
+                    type: "UInt64",
+                    value: nftId,
                 }
             ],
         }

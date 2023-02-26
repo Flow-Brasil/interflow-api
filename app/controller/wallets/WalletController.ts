@@ -124,32 +124,6 @@ class WalletController {
         .json({ message: "A internal error receiving a webhook occurred" });
     }
   }
-
-  // --------------------------------------------
-  // INTERFLOW CUSTOM ---------------------------
-  // --------------------------------------------
-
-  public async mintInterflowCustomNft(
-    req: Request,
-    res: Response
-  ): Promise<Response> {
-    try {
-      const { userInterflowAddress, nftCollectionName, nftImageLink, nftUuid } =
-        req.body;
-      const jobId = await WalletService.mintInterflowCustom(
-        userInterflowAddress,
-        nftCollectionName,
-        nftImageLink,
-        nftUuid
-      );
-      return res.status(200).json(jobId);
-    } catch (error) {
-      console.log(error);
-      return res
-        .status(500)
-        .json({ message: "A internal error creating a wallet occurred" });
-    }
-  }
 }
 
 export default new WalletController();

@@ -158,15 +158,39 @@ class UserService {
   // NFTS -------------------------------------
   // ------------------------------------------
   async getUserNfts(id: string): Promise<any> {
-    const user = await this.findUserDataValue(id);
+    const user = await userRepository.findByPk(id, {
+      include: [
+        {
+          association: "customNfts",
+        },
+      ],
+    });
+
+    let customNfts = user.customNfts;
+    let interflowCustoms = customNfts.map((nft) => {
+      return {
+        id: nft.dataValues.customNftId,
+        uuid: nft.dataValues.customNftUuid,
+        name: "Interflow Custom NFT",
+        description: "First AI generated NFT Collection based in original NFTs images.",
+        thumbnail: nft.dataValues.customNftImageLink,
+        collectionIdentifier: "Interflow Custom",
+        collectionSquareImage: "https://interflow-app.s3.amazonaws.com/logo.png",
+        collectionBannerImage: "https://interflow-app.s3.amazonaws.com/bgImage.png",
+      };
+    });
+
+    console.log("customNfts", interflowCustoms);
     if (
-      (user.dapperAddress === null || user.dapperAddress === "") &&
-      (user.bloctoAddress === null || user.bloctoAddress === "")
+      (user.dataValues.dapperAddress === null ||
+        user.dataValues.dapperAddress === "") &&
+      (user.dataValues.bloctoAddress === null ||
+        user.dataValues.bloctoAddress === "")
     )
       return { message: "User has no NFTs" };
 
-    const nfts = await FlowService.getAllNftsFromAccount(user);
-    return nfts;
+    const nfts = await FlowService.getAllNftsFromAccount(user.dataValues);
+    return {...nfts, "Interflow Custom": interflowCustoms};
   }
 
   // ------------------------------------------
@@ -175,8 +199,10 @@ class UserService {
   async getAllUserCollections(id: string): Promise<any> {
     const user = await this.getUser(id);
     if (
-      (user.dataValues.dapperAddress === null || user.dataValues.dapperAddress === "") &&
-      (user.dataValues.bloctoAddress === null || user.dataValues.bloctoAddress === "")
+      (user.dataValues.dapperAddress === null ||
+        user.dataValues.dapperAddress === "") &&
+      (user.dataValues.bloctoAddress === null ||
+        user.dataValues.bloctoAddress === "")
     ) {
       let userCompleteData: UserCompleteData = {
         user: user.dataValues,
@@ -184,15 +210,20 @@ class UserService {
       };
       return userCompleteData;
     } else {
-      const collections = await FlowService.getAllUserCollection(user.dataValues);
+      const collections = await FlowService.getAllUserCollection(
+        user.dataValues
+      );
 
-      let userCollectionsNames = Object.keys(collections)
-      let collectionValues: NftCollectionData[] = Object.values(collections)
+      let userCollectionsNames = Object.keys(collections);
+      let collectionValues: NftCollectionData[] = Object.values(collections);
       let totalLength = collectionValues.reduce((acc, collection) => {
-        return acc + (+collection.nftLength)
-      }, 0)
-      
-      await user.update({ nftCollections: userCollectionsNames, nftLength: totalLength })
+        return acc + +collection.nftLength;
+      }, 0);
+
+      await user.update({
+        nftCollections: userCollectionsNames,
+        nftLength: totalLength,
+      });
 
       let userCompleteData: UserCompleteData = {
         user: user.dataValues,
@@ -290,8 +321,8 @@ class UserService {
     try {
       for (let user of exploreUsers) {
         if (user.dataValues.id === id) continue;
-        let collectionInCommon = user.dataValues.nftCollections.filter((collection) =>
-          compareCollection.includes(collection)
+        let collectionInCommon = user.dataValues.nftCollections.filter(
+          (collection) => compareCollection.includes(collection)
         );
 
         let userSocialData: UserSocialData = {

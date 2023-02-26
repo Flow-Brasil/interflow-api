@@ -10,7 +10,7 @@ class AiImage {
   async customizeNft(req: Request, res: Response): Promise<Response> {
     try {
         const {  nftUuid, nftImageLink, nftCollectionName, nftType, nftContractAddress } = req.body;
-        const customData: CustomizeNftData = { nftUuid, nftImageLink, nftCollectionName, nftType, nftContractAddress };
+        const customData: CustomizeNftData = {  nftUuid, nftImageLink, nftCollectionName, nftType, nftContractAddress };
         const customNft = await AiImageService.customizeNft(req.params.id, customData);
         return res.status(200).json(customNft);
     } catch (error) {
@@ -36,6 +36,26 @@ class AiImage {
     } catch (error) {
       console.log("ERROR", error);
       return res.status(400).json({ message: "Something went wrong getting all interflow custom from user" });
+    }
+  }
+
+  async revealInterflowCustom(req: Request, res: Response): Promise<Response> {
+    try {
+        const interflowCustom = await AiImageService.revealInterflowCustom(req.params.id);
+        return res.status(200).json(interflowCustom);
+    } catch (error) {
+      console.log("ERROR", error);
+      return res.status(400).json({ message: "Something went wrong revealing your NFT" });
+    }
+  }
+
+  async allowReveal(req: Request, res: Response): Promise<Response> {
+    try {
+        const interflowCustom = await AiImageService.allowReveal(req.params.id);
+        return res.status(200).json(interflowCustom);
+    } catch (error) {
+      console.log("ERROR", error);
+      return res.status(400).json({ message: "Something went wrong allowing reveal" });
     }
   }
 }
