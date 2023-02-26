@@ -45,6 +45,9 @@ export class InterflowCustomNft extends Model {
   @Column(DataType.STRING)
   jobId!: string;
 
+  @Column(DataType.STRING)
+  revealJobId!: string;
+
   @Column(DataType.BOOLEAN)
   readyToReveal!: boolean;
 

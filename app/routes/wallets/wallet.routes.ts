@@ -17,6 +17,7 @@ walletRoutes.post("/wallets/setWalletToUsersWithoutOne", WalletController.setWal
 walletRoutes.post("/wallets/createWallet", WalletController.createWallet);
 walletRoutes.post("/wallets/initCustomCollection/:id", WalletController.initInterflowCustomCollection);
 walletRoutes.post("/wallets/mintInterflowCustom", WalletController.initInterflowCustomCollection);
+walletRoutes.post("/wallets/webhookJob", WalletController.webhook);
 
 
 export default walletRoutes;

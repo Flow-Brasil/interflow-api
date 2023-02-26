@@ -13,36 +13,46 @@ class WalletController {
     }
   }
 
-  public async getAllAvailableWallets(req: Request, res: Response): Promise<Response> {
+  public async getAllAvailableWallets(
+    req: Request,
+    res: Response
+  ): Promise<Response> {
     try {
       const wallets = await WalletService.getAllAvailableAccounts();
       return res.status(200).json(wallets);
     } catch (error) {
-      return res
-        .status(500)
-        .json({ message: "A internal error getting all available wallets occurred" });
+      return res.status(500).json({
+        message: "A internal error getting all available wallets occurred",
+      });
     }
   }
 
-  public async getAllAvailableWalletsLength(req: Request, res: Response): Promise<Response> {
+  public async getAllAvailableWalletsLength(
+    req: Request,
+    res: Response
+  ): Promise<Response> {
     try {
       const wallets = (await WalletService.getAllAvailableAccounts()).length;
       return res.status(200).json(wallets);
     } catch (error) {
-      return res
-        .status(500)
-        .json({ message: "A internal error getting all Available Length wallets occurred" });
+      return res.status(500).json({
+        message:
+          "A internal error getting all Available Length wallets occurred",
+      });
     }
   }
 
-  public async getAllUsedWallets(req: Request, res: Response): Promise<Response> {
+  public async getAllUsedWallets(
+    req: Request,
+    res: Response
+  ): Promise<Response> {
     try {
       const wallets = await WalletService.getAllUsedWallets();
       return res.status(200).json(wallets);
     } catch (error) {
-      return res
-        .status(500)
-        .json({ message: "A internal error getting all used wallets occurred" });
+      return res.status(500).json({
+        message: "A internal error getting all used wallets occurred",
+      });
     }
   }
 
@@ -70,14 +80,20 @@ class WalletController {
     }
   }
 
-  public async setWalletToUsersWithoutOne(req: Request, res: Response): Promise<Response> {
+  public async setWalletToUsersWithoutOne(
+    req: Request,
+    res: Response
+  ): Promise<Response> {
     try {
       await WalletService.setWalletToUsersWithoutOne();
-      return res.status(200).json({ message: "Wallets setted to users without one" });
-    } catch (error) {
       return res
-        .status(500)
-        .json({ message: "A internal error setting wallets to users without one occurred" });
+        .status(200)
+        .json({ message: "Wallets setted to users without one" });
+    } catch (error) {
+      return res.status(500).json({
+        message:
+          "A internal error setting wallets to users without one occurred",
+      });
     }
   }
 
@@ -93,11 +109,33 @@ class WalletController {
   }
 
   // --------------------------------------------
+  // WEBHOOK ---------------------------
+  // --------------------------------------------
+  public async webhook(req: Request, res: Response): Promise<Response> {
+    try {
+      console.log("Webhook received -------", req.body)
+      const { jobId, type, status } = req.body;
+      await WalletService.getWebhook(jobId, type, status);
+      return res.status(200).json({ message: "Webhook received" });
+    } catch (error) {
+      console.log(error);
+      return res
+        .status(500)
+        .json({ message: "A internal error receiving a webhook occurred" });
+    }
+  }
+
+  // --------------------------------------------
   // INTERFLOW CUSTOM ---------------------------
   // --------------------------------------------
-  public async initInterflowCustomCollection(req: Request, res: Response): Promise<Response> {
+  public async initInterflowCustomCollection(
+    req: Request,
+    res: Response
+  ): Promise<Response> {
     try {
-      const jobId = await WalletService.initInterflowCustomCollection(req.params.id);
+      const jobId = await WalletService.initInterflowCustomCollection(
+        req.params.id
+      );
       return res.status(200).json(jobId);
     } catch (error) {
       console.log(error);
@@ -107,10 +145,19 @@ class WalletController {
     }
   }
 
-  public async mintInterflowCustomNft(req: Request, res: Response): Promise<Response> {
+  public async mintInterflowCustomNft(
+    req: Request,
+    res: Response
+  ): Promise<Response> {
     try {
-      const {userInterflowAddress, nftCollectionName, nftImageLink, nftUuid} = req.body;
-      const jobId = await WalletService.mintInterflowCustom(userInterflowAddress, nftCollectionName, nftImageLink, nftUuid);
+      const { userInterflowAddress, nftCollectionName, nftImageLink, nftUuid } =
+        req.body;
+      const jobId = await WalletService.mintInterflowCustom(
+        userInterflowAddress,
+        nftCollectionName,
+        nftImageLink,
+        nftUuid
+      );
       return res.status(200).json(jobId);
     } catch (error) {
       console.log(error);
@@ -119,7 +166,6 @@ class WalletController {
         .json({ message: "A internal error creating a wallet occurred" });
     }
   }
-
 }
 
 export default new WalletController();

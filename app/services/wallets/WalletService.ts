@@ -4,9 +4,11 @@ import { account } from "@models/Wallet/Account";
 import { Op } from "sequelize";
 import AxiosService from "../axios/AxiosService";
 import TransactionGenerator from "../ai-image/utils/TransactionGenerator";
+import { InterflowCustomNft } from "@models/interflow-custom-nft/InterflowCustomNft";
 
 const walletRepository = sequelize.getRepository(account);
 const userRespository = sequelize.getRepository(User);
+const interflowCustomRepository = sequelize.getRepository(InterflowCustomNft);
 
 class WalletService {
   // This method calls the Interflow Wallet API to create a new account
@@ -189,6 +191,38 @@ class WalletService {
   }
 
   // --------------------------------------------
+  // WEBHOOK ---------------------------
+  // --------------------------------------------
+  async getWebhook(jobId: string, type: string, status: string){
+    try {
+      if(status == "COMPLETE" && type == "transaction"){  
+        console.log('JOB ID WAS HERE ----', jobId);
+        const interflowCustom = await interflowCustomRepository.findOne({
+          where: {
+            [Op.or]: [
+              {jobId: jobId},
+              {revealJobId: jobId}
+            ]
+          }
+        });
+  
+        if(!interflowCustom) return "ANY INTERFLOW CUSTOM FOUND";
+  
+        if(interflowCustom.dataValues.minted){
+          await interflowCustom.update({ revealed: true })
+        } else {
+          await interflowCustom.update({ minted: true })
+        }
+  
+        return interflowCustom;
+      }
+    } catch (error) {
+      console.log('ERROR -----',error);
+      return error;
+    }
+  }
+
+  // --------------------------------------------
   // INTERFLOW CUSTOM ---------------------------
   // --------------------------------------------
   async initInterflowCustomCollection(userId: string) {
@@ -205,7 +239,6 @@ class WalletService {
 
       const data =
         await TransactionGenerator.generateInitCustomCollectionTransaction();
-      console.log("DATAAA", data);
       await AxiosService.post(`/accounts/${interflowAddress}/sign`, data);
       const jobId = await AxiosService.post(
         `/accounts/${interflowAddress}/transactions`,
@@ -240,7 +273,6 @@ class WalletService {
         nftUuid,
         userInterflowAddress
       );
-      console.log("DATAAA", data);
       await AxiosService.post(`/accounts/${ADMIN_ADDRESS}/sign`, data);
       const jobId = await AxiosService.post(
         `/accounts/${ADMIN_ADDRESS}/transactions`,

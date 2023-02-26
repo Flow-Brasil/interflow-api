@@ -9,9 +9,9 @@ leap.usePublicModel("sd-1.5");
 class AiImage {
   async customizeNft(req: Request, res: Response): Promise<Response> {
     try {
-        const { userInterflowAddress, nftUuid, nftImageLink, nftCollectionName, nftType, nftContractAddress } = req.body;
+        const {  nftUuid, nftImageLink, nftCollectionName, nftType, nftContractAddress } = req.body;
         const customData: CustomizeNftData = { nftUuid, nftImageLink, nftCollectionName, nftType, nftContractAddress };
-        const customNft = await AiImageService.customizeNft(req.body.id, customData);
+        const customNft = await AiImageService.customizeNft(req.params.id, customData);
         return res.status(200).json(customNft);
     } catch (error) {
       console.log("ERROR", error);

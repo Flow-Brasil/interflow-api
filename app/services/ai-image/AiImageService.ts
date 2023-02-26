@@ -12,7 +12,10 @@ const interflowCustomRepository = sequelize.getRepository(InterflowCustomNft);
 class AiImageService {
   async customizeNft(id: string, nftData: CustomizeNftData): Promise<any> {
     try {
-      const user = await userRepository.findByPk(id);
+      const user = await UserService.findUserDataValue(id);
+      if(!user) {
+        return "User not found"
+      }
       const userInterflowAddress = user.interflowAddress;
 
       const interflowCustom = await interflowCustomRepository.create({
@@ -25,6 +28,7 @@ class AiImageService {
         originalNftType: nftData.nftType,
         minted: false,
         jobId: "",
+        revealJobId: "",
         readyToReveal: false,
         revealed: false,
         userInterflowAddress: userInterflowAddress,
@@ -39,7 +43,9 @@ class AiImageService {
         nftData.nftUuid
       );
 
-      interflowCustom.jobId = jobId;
+      console.log("JOBID", jobId)
+
+      interflowCustom.jobId = jobId.jobId;
       await interflowCustom.save();
 
       return interflowCustom;
@@ -49,7 +55,16 @@ class AiImageService {
     }
   }
 
-  async updateInterflowCustom(
+  async updateMintedInterflowCustom(jobId: string){
+    const interflowCustom = await interflowCustomRepository.findOne({
+      where: {
+        jobId: jobId,
+      },
+    });
+
+  }
+
+  async revealInterflowCustom(
     id: string,
     customNftImageLink: any
   ): Promise<any> {
