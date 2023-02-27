@@ -33,7 +33,7 @@ class AiImageService {
         customNftId: nftId.toString(),
         customNftUuid: nftData.nftUuid,
         aiGeneratedImage: false,
-        customNftImageLink: "",
+        customNftImageLink: "https://interflow-app.s3.amazonaws.com/placeholder.png",
         originalNftImageLink: nftData.nftImageLink,
         originalNftCollectionName: nftData.nftCollectionName,
         originalNftType: nftData.nftType,
