@@ -178,6 +178,8 @@ class UserService {
         collectionIdentifier: "Interflow Custom",
         collectionSquareImage: "https://interflow-app.s3.amazonaws.com/logo.png",
         collectionBannerImage: "https://interflow-app.s3.amazonaws.com/bgImage.png",
+        isInterflow: true,
+        interflowId: nft.dataValues.id,
       };
     });
 

@@ -19,6 +19,16 @@ class AiImage {
     }
   }
 
+  async getInterflowCustom(req: Request, res: Response): Promise<Response> {
+    try {
+        const interflowCustom = await AiImageService.getInterflow(req.params.id);
+        return res.status(200).json(interflowCustom);
+    } catch (error) {
+      console.log("ERROR", error);
+      return res.status(400).json({ message: "Something went wrong getting interflow custom" });
+    }
+  }
+
   async getAllInterflowCustom(req: Request, res: Response): Promise<Response> {
     try {
         const interflowCustom = await AiImageService.getAllInterflowCustom();

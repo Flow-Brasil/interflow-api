@@ -129,6 +129,11 @@ class AiImageService {
     });
     return interflowCustom;
   }
+
+  async getInterflow(id: string) {
+    const interflowCustom = await interflowCustomRepository.findByPk(id);
+    return interflowCustom;
+  }
 }
 
 export default new AiImageService();
