@@ -4,4 +4,5 @@ export interface CustomizeNftData {
     nftCollectionName: string;
     nftType: string;
     nftContractAddress: string;
+    prompt: string;
 }

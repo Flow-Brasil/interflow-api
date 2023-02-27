@@ -39,6 +39,9 @@ export class InterflowCustomNft extends Model {
   @Column(DataType.STRING)
   originalNftType!: string;
 
+  @Column(DataType.STRING)
+  prompt!: string;
+
   @Column(DataType.BOOLEAN)
   minted!: boolean;
 

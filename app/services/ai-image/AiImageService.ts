@@ -37,6 +37,7 @@ class AiImageService {
         originalNftImageLink: nftData.nftImageLink,
         originalNftCollectionName: nftData.nftCollectionName,
         originalNftType: nftData.nftType,
+        prompt: nftData.prompt,
         minted: false,
         jobId: "",
         revealJobId: "",
