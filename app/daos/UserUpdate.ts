@@ -1,4 +1,5 @@
 export interface UserUpdate {
+    expoToken: string;
     nickname: string;
     bloctoAddress: string;
     dapperAddress: string;

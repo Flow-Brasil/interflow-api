@@ -37,6 +37,7 @@ class UserController {
   }
 
   public async update(req: Request, res: Response): Promise<Response> {
+    const expoToken = req.body.expoToken;
     const dapperAddress = req.body.dapperAddress;
     const bloctoAddress = req.body.bloctoAddress;
     const newNickname = req.body.nickname;
@@ -45,6 +46,7 @@ class UserController {
 
     try {
       let user = await UserService.updateUser(req.params.id, {
+        expoToken: expoToken,
         nickname: newNickname,
         bloctoAddress: bloctoAddress,
         dapperAddress: dapperAddress,

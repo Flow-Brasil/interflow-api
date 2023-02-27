@@ -21,6 +21,9 @@ export class User extends Model {
   authId!: string;
 
   @Column(DataType.STRING)
+  expoToken!: string;
+
+  @Column(DataType.STRING)
   nickname!: string;
 
   @Column(DataType.STRING)

@@ -37,6 +37,7 @@ class UserService {
     try {
       const user = await userRepository.create({
         authId: authId,
+        expoToken: "",
         nickname: nickname,
         email: email,
         interflowAddress: "",
