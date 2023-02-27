@@ -24,7 +24,7 @@ class UserService {
       if (userExists) {
         return {
           message: "User logged with success!",
-          userExists,
+          user: userExists,
         };
       }
     } catch (err: any) {
