@@ -20,7 +20,7 @@ class StripeController {
             const userId = req.params.id;
             const tokensAmount = req.body.tokensAmount;
             const user = await StripeService.addTokensToUser(userId, tokensAmount);
-            return res.status(200).json(user);
+            return res.status(200).json({user: user});
         } catch (err: any) {
             console.log('ERROR ---', err)
             return res.status(400).json({ message: "Invalid ID" });
