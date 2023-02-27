@@ -11,8 +11,11 @@ const userRepository = sequelize.getRepository(User);
 class StripeService {
     async createPaymentIntent(userId: string, amount: number, currency: string) {
         const user = await userRepository.findByPk(userId);
-        try {
+        if(!user) {
+          return {message: "User does not exist"}
+        }
         
+        try {
         let costumers = await stripe.customers.list()
         let costumer = costumers.data.find((costumer) => costumer.email === user.dataValues.email)
 
@@ -52,6 +55,10 @@ class StripeService {
 
   async addTokensToUser(userId: string, amount: number) {
     const user = await userRepository.findByPk(userId);
+
+    if(!user) {
+      return {message: "User does not exist"}
+    }
 
     try{
         await user.update({
