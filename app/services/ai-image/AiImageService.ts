@@ -61,7 +61,7 @@ class AiImageService {
       await interflowCustom.update({ jobId: jobId.jobId });
       await user.update({ interflowTokens: userTokens - 10 });
 
-      return { status: "COMPLETE", ...interflowCustom.dataValues };
+      return user.dataValues;
     } catch (error) {
       console.log("ERROR", error);
       return error;
