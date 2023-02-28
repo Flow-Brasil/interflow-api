@@ -144,7 +144,7 @@ class UserService {
     console.log("user to follow", userToFollowFollowers);
     await userToFollow.update({ followers: userToFollowFollowers });
 
-    return user;
+    return userToFollow;
   }
 
   async deleteUser(id: string): Promise<string | null> {
