@@ -86,7 +86,7 @@ class UserService {
     return user;
   }
 
-  async updateUser(id: string, userUpdates: UserUpdate): Promise<User | null> {
+  async updateUser(id: string, userUpdates: UserUpdate): Promise<any> {
     let user = await this.getUser(id);
 
     let dapperAddress = userUpdates.dapperAddress;
@@ -98,7 +98,7 @@ class UserService {
 
     await this.getAllUserCollections(id);
 
-    return user;
+    return {user: user.dataValues};
   }
 
   async followUnfollowUser(
