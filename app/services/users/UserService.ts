@@ -126,7 +126,7 @@ class UserService {
       );
       await userToFollow.update({ followers: updatedFollowers });
 
-      return user;
+      return userToFollow;
     }
 
     //Update Following from User
